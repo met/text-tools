@@ -1,0 +1,44 @@
+<!doctype html>
+<title>Word frequencies in Spanish text</title>
+
+<textarea id="input" style="width:90%; height:10em"></textarea>
+<input type="button" value="Process text" onclick="process();return false">
+
+<h3>Frequencies:</h3>
+<pre id="ngrams">...</pre>
+<h3>Stemmed:</h3>
+<pre id="ngrams-stemmed">...</pre>
+
+<p>Part of <a href="https://github.com/met/text-tools">text-tools</a>. Based on <a href="https://github.com/dmarman/lorca">Lorca lib</a>.</p>
+
+
+<script src="lorca-nlp-build.js"></script>
+<script>
+
+
+function process() {
+	var lorca = window.getLorca();	
+	var text = document.getElementById("input").value;
+	var doc = lorca(text);
+
+	console.log(doc.concordance().sort().get());
+	console.log(doc.words().stem().concordance().sort().get());
+	//console.log(doc.words().corpusFrequency().get());
+
+	printList(doc.concordance().sort().get(),"ngrams");
+	printList(doc.words().stem().concordance().sort().get(),"ngrams-stemmed"); 
+
+}
+
+function printList(inputList, outputElement) {
+
+ 	var output = "";
+
+ 	for (var a in inputList) {
+ 		output += String(inputList[a]) + " " + a + "\r\n";
+ 	}
+
+ 	document.getElementById(outputElement).innerHTML = output;
+}
+
+</script>
