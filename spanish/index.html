@@ -9,11 +9,14 @@
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript" integrity="sha384-+NH1Lmhq1u8XKi1XBTaE+L8OWwUMKaIgO+1cvgDH3N31BLAwidVFIFDQSzJK//l0" crossorigin="anonymous"></script>
 
 <body class="container">
-<h1>Word frequencies in Spanish text for learners of Spanish</h1>
 
-<form class="mb-3" class="row">
-<label for="input" class="form-label">Paste your Spanish text here or use given example from <a href="http://www.gutenberg.org/ebooks/2000">Don Quijote de la Mancha</a>.</label>
-<textarea id="input" class="form-control mb-3" style="height:20em" lang="es">
+<h1 class="mt-3">Word frequencies in Spanish text for learners of Spanish</h1>
+
+<form class="mt-5 mb-3" class="row">
+<label for="input" class="form-label">Paste your Spanish text here or use the given example from
+<a href="http://www.gutenberg.org/ebooks/2000">Don Quijote de la Mancha</a>.</label>
+
+<textarea id="input" class="form-control mt-3 mb-3" style="height:20em" lang="es">
 En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho
 tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua,
 rocín flaco y galgo corredor. Una olla de algo más vaca que carnero,
@@ -30,35 +33,41 @@ de la caza. Quieren decir que tenía el sobrenombre de Quijada, o Quesada,
 que en esto hay alguna diferencia en los autores que deste caso escriben;
 aunque, por conjeturas verosímiles, se deja entender que se llamaba
 Quejana. Pero esto importa poco a nuestro cuento; basta que en la narración
-dél no se salga un punto de la verdad.
-</textarea>
+dél no se salga un punto de la verdad.</textarea>
 <input id="btn-process" type="button" class="btn btn-primary mb-3" value="Process text">
 </form>
 
-
 <div id="output-area" class="collapse mb-3">
-	<div class="row mb-3">
-		<h2>How much can you understand?</h2>
-		<div id="readibility-stats"></div>
+	<div class="row mb-3 card">
+		<h4 class="card-header">How much can you understand?</h4>
+		<div id="readibility-stats" class="card-text my-3"></div>
 	</div>
 
-	<div class="row mb-3 pt-4"> 
-		<div class="col-sm mb-3">
-			<h2>Words</h2>
-			<p>List of words with frequencies in given text.</p>
-			<div id="ngrams" class="mx-3">...</div>
+	<div>
+		<div class="row">
+			<button id="stemm-toggle" class="btn btn-primary" type="button" style="width:30%" data-bs-toggle="collapse" data-bs-target=".multi-collapse"
+			aria-expanded="false" aria-controls="words-container stemmed-words-container">Toggle stemming (hablar/habl)</button>
 		</div>
 
-		<div class="col-sm mb-3">
-			<h2>Stemmed words</h2>
-			<p>Same list, but words are converted to their basic form (eg. <strong>hablar,hablo,hablas</strong> => <strong>habl</strong>).</p>
-			<div id="ngrams-stemmed" class="mx-3">...</div>
+		<div class="mb-3 pt-4">
+			<div id="words-container" class="row mb-3 multi-collapse show card">
+				<h2 class="card-header">Words</h2>
+				<p class="card-title mt-2">List of words with the number of their occurrences in the given text.</p>
+				<div id="ngrams" class="card-text">...</div>
+			</div>
+
+			<div id="stemmed-words-container" class="row mb-3 multi-collapse collapse card">
+				<h2 class="card-header">Stemmed words</h2>
+				<p class="card-title mt-2">List of words with the number of their occurrences in the given text.<br>
+				Words are converted to their basic form, eg. <strong>hablar,hablo,hablas</strong>... => <strong>habl</strong>.</p>
+				<div id="ngrams-stemmed" class="card-text">...</div>
+			</div>
 		</div>
 	</div>
 </div>
 
 
-<footer class="pt-4">
+<footer class="text-center fst-italic pt-4">
 	<p>Created by <a href="https://twitter.com/hassmanm">Martin Hassman</a>. Source code on <a href="https://github.com/met/text-tools">GitHub</a>. Based on <a href="https://github.com/dmarman/lorca">Lorca</a> - spanish NLP library.</p>
 </footer>
 
@@ -71,11 +80,10 @@ dél no se salga un punto de la verdad.
 function initEvents() {
 	document.getElementById("btn-process").onclick = function(e)  {
 		var btn = document.getElementById("btn-process");
-		var btnOldText = btn.value;
-
+		btn.dataset.originalValue = btn.value;
 		btn.value = "Processing...";
-		process();
-		btn.value = btnOldText;
+		document.getElementById("output-area").classList.add("collapse");		
+		setTimeout(process, 0);	// using setTimetout - for button text change in UI to happen now before processing
 		return false;
 	};
 }
@@ -100,9 +108,10 @@ function process() {
 	var dataTable1 = new simpleDatatables.DataTable("#tbl-words", {paging:false});
 	var dataTable2 = new simpleDatatables.DataTable("#tbl-stemmed-words", {paging:false});
 
-	document.getElementById("output-area").classList.remove("collapse");
-
 	printReadibility(stemmedWords, "readibility-stats");
+
+	document.getElementById("output-area").classList.remove("collapse");
+	document.getElementById("btn-process").value = document.getElementById("btn-process").dataset.originalValue;	
 }
 
 // Print inputList into any "pre" area
@@ -141,12 +150,10 @@ function printReadibility(inputList, outputElement) {
 	for (i=0; i < nlist.length; i++) {
 		var stats = readibilityStats(inputList, nlist[i]);
 		output += '<div class="row">';
-		output += '<div class="col-sm">If you know <strong>' + String(nlist[i]) + '</strong> most frequent words in this text, you understand <strong>' + String(stats.readable) + ' %</strong> of this text.</div>';
+		output += '<div class="col-sm">If you know the <strong>' + String(nlist[i]) + '</strong> most frequent words in this text, you understand <strong>' + String(stats.readable) + ' %</strong> of this text.</div>';
 		output += '<div class="col-sm"><div class="progress"><div class="progress-bar" role="progressbar" style="width: '+ String(stats.readable) +'%" aria-valuenow="'+ String(stats.known) + '" aria-valuemin="0" aria-valuemax="'+ String(stats.words) + '"></div></div></div></div>';
 		output += '</div">';
 	}
-
-
 
 	document.getElementById(outputElement).innerHTML = output;
 }
