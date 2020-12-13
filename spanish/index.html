@@ -12,7 +12,7 @@
 <h1>Word frequencies in Spanish text for learners of Spanish</h1>
 
 <form class="mb-3" class="row">
-<label for="input" class="form-label">Put your Spanish text or use given example from <a href="http://www.gutenberg.org/ebooks/2000">Don Quijote de la Mancha</a>.</label>
+<label for="input" class="form-label">Paste your Spanish text here or use given example from <a href="http://www.gutenberg.org/ebooks/2000">Don Quijote de la Mancha</a>.</label>
 <textarea id="input" class="form-control mb-3" style="height:20em" lang="es">
 En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho
 tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua,
@@ -36,23 +36,23 @@ dél no se salga un punto de la verdad.
 </form>
 
 
-<div id="output-area" class="collapse">
-	<div class="row">
+<div id="output-area" class="collapse mb-3">
+	<div class="row mb-3">
 		<h2>How much can you understand?</h2>
 		<div id="readibility-stats"></div>
 	</div>
 
-	<div class="row"> 
-		<div class="col-sm">
+	<div class="row mb-3 pt-4"> 
+		<div class="col-sm mb-3">
 			<h2>Words</h2>
 			<p>List of words with frequencies in given text.</p>
-			<div id="ngrams">...</div>
+			<div id="ngrams" class="mx-3">...</div>
 		</div>
 
-		<div class="col-sm">
+		<div class="col-sm mb-3">
 			<h2>Stemmed words</h2>
 			<p>Same list, but words are converted to their basic form (eg. <strong>hablar,hablo,hablas</strong> => <strong>habl</strong>).</p>
-			<div id="ngrams-stemmed">...</div>
+			<div id="ngrams-stemmed" class="mx-3">...</div>
 		</div>
 	</div>
 </div>
@@ -136,15 +136,17 @@ function printTable(inputList, tblId, outputElement) {
 
 function printReadibility(inputList, outputElement) {
 	var nlist = [10, 100, 1000];
-	var stat10   = readibilityStats(inputList, 10);
-	var stat100  = readibilityStats(inputList, 100);
-	var stat1000 = readibilityStats(inputList, 1000);
 	var output = "";
 
 	for (i=0; i < nlist.length; i++) {
-		var stat = readibilityStats(inputList, nlist[i]);
-		output += "If you understand first <strong>" + String(nlist[i]) + "</strong> most frequent words in this text, than you can read <strong>" + String(stat.readable) + " %</strong> of this text.<br>";
+		var stats = readibilityStats(inputList, nlist[i]);
+		output += '<div class="row">';
+		output += '<div class="col-sm">If you know <strong>' + String(nlist[i]) + '</strong> most frequent words in this text, you understand <strong>' + String(stats.readable) + ' %</strong> of this text.</div>';
+		output += '<div class="col-sm"><div class="progress"><div class="progress-bar" role="progressbar" style="width: '+ String(stats.readable) +'%" aria-valuenow="'+ String(stats.known) + '" aria-valuemin="0" aria-valuemax="'+ String(stats.words) + '"></div></div></div></div>';
+		output += '</div">';
 	}
+
+
 
 	document.getElementById(outputElement).innerHTML = output;
 }
