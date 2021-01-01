@@ -83,10 +83,10 @@ dél no se salga un punto de la verdad.</textarea>
 
 <script src="lorca-nlp-build.js" type="text/javascript"></script>
 <script type="text/javascript">
-
+"use strict";
 function initEvents() {
 	document.getElementById("btn-process").onclick = function(e)  {
-		var btn = document.getElementById("btn-process");
+		let btn = document.getElementById("btn-process");
 		btn.dataset.originalValue = btn.value;
 		btn.value = "Processing...";
 		document.getElementById("output-area").classList.add("collapse");		
@@ -98,21 +98,21 @@ initEvents();
 
 // Do text analysis and print results
 function process() {
-	var lorca = window.getLorca();	
-	var text = document.getElementById("input").value;
-	var doc = lorca(text);
+	let lorca = window.getLorca();	
+	let text = document.getElementById("input").value;
+	let doc = lorca(text);
 
-	var words = doc.concordance().sort().get();
-	var stemmedWords = doc.words().stem().concordance().sort().get();
+	let words = doc.concordance().sort().get();
+	let stemmedWords = doc.words().stem().concordance().sort().get();
 
 	//console.log(doc.words().corpusFrequency().get()); // not working in browserified version
 
-	var skipSW = skipStopWords();
+	let skipSW = skipStopWords();
 	printTable(words, "tbl-words", "ngrams", skipSW && isStopWord);  // skipSW && isStopWord => is either "false" or isStopWord
 	printTable(stemmedWords, "tbl-stemmed-words", "ngrams-stemmed", skipSW && isStopWordStemmed);
 
-	var dataTable1 = new simpleDatatables.DataTable("#tbl-words", {paging:false});
-	var dataTable2 = new simpleDatatables.DataTable("#tbl-stemmed-words", {paging:false});
+	let dataTable1 = new simpleDatatables.DataTable("#tbl-words", {paging:false});
+	let dataTable2 = new simpleDatatables.DataTable("#tbl-stemmed-words", {paging:false});
 
 	printReadibility(stemmedWords, "readibility-stats");
 
@@ -125,10 +125,10 @@ function process() {
 function printTable(inputList, tblId, outputElement, filterStopWordCallBack) {
 	if (!tblId) { tblId = ""; }
 
- 	var output = '<table id="' + tblId + '" class="table"><thead><tr><th>order</th><th>word</th><th>count</th></tr></thead><tbody>';
- 	var i = 1;
+ 	let output = '<table id="' + tblId + '" class="table"><thead><tr><th>order</th><th>word</th><th>count</th></tr></thead><tbody>';
+ 	let i = 1;
 
- 	for (var a in inputList) {
+ 	for (let a in inputList) {
  		if ( 
  				!(filterStopWordCallBack && filterStopWordCallBack(a))   // condition is always true if filterStopWordCallBack is false, when filterStopWordCallBack is true, then depends on filterStopWordCallBack(a) call
  			) {
@@ -143,11 +143,11 @@ function printTable(inputList, tblId, outputElement, filterStopWordCallBack) {
 }
 
 function printReadibility(inputList, outputElement) {
-	var nlist = [50, 100, 500, 1000, 2000, 5000];
-	var output = "";
+	let nlist = [50, 100, 500, 1000, 2000, 5000];
+	let output = "";
 
-	for (i=0; i < nlist.length; i++) {
-		var stats = readibilityStats(inputList, nlist[i]);
+	for (let i=0; i < nlist.length; i++) {
+		let stats = readibilityStats(inputList, nlist[i]);
 		output += '<div class="row">';
 		output += '<div class="col-sm">If you know the <strong>' + String(nlist[i]) + '</strong> most frequent words in this text, you understand <strong>' + String(stats.readable) + ' %</strong> of this text.</div>';
 		output += '<div class="col-sm"><div class="progress"><div class="progress-bar" role="progressbar" style="width: '+ String(stats.readable) +'%" aria-valuenow="'+ String(stats.known) + '" aria-valuemin="0" aria-valuemax="'+ String(stats.words) + '"></div></div></div></div>';
@@ -161,13 +161,13 @@ function printReadibility(inputList, outputElement) {
 // Return { "words": 74, "known": 217, "readable": 34}
 // Means text has 217 words, reader knows 74 and will understand 34% of text
 function readibilityStats(inputList, numberofKnownWords) {
-	var i = 0;
-	var wholeTextWords = 0;
-	var knowTextWords = 0;
+	let i = 0;
+	let wholeTextWords = 0;
+	let knowTextWords = 0;
 
-	var skipSW = skipStopWords();
+	let skipSW = skipStopWords();
 
- 	for (var a in inputList) {
+ 	for (let a in inputList) {
  		//console.log(i, a, inputList[a]);
 
  		if (!skipSW || !isStopWordStemmed(a)) {
@@ -187,8 +187,8 @@ function readibilityStats(inputList, numberofKnownWords) {
 }
 
 // Stop Words from https://github.com/Alir3z4/stop-words
-var stopWords = ["a", "al", "algo", "algunas", "algunos", "ante", "antes", "como", "con", "contra", "cual", "cuando", "de", "del", "desde", "donde", "durante", "e", "el", "ella", "ellas", "ellos", "en", "entre", "era", "erais", "eran", "eras", "eres", "es", "esa", "esas", "ese", "eso", "esos", "esta", "estaba", "estabais", "estaban", "estabas", "estad", "estada", "estadas", "estado", "estados", "estamos", "estando", "estar", "estaremos", "estará", "estarán", "estarás", "estaré", "estaréis", "estaría", "estaríais", "estaríamos", "estarían", "estarías", "estas", "este", "estemos", "esto", "estos", "estoy", "estuve", "estuviera", "estuvierais", "estuvieran", "estuvieras", "estuvieron", "estuviese", "estuvieseis", "estuviesen", "estuvieses", "estuvimos", "estuviste", "estuvisteis", "estuviéramos", "estuviésemos", "estuvo", "está", "estábamos", "estáis", "están", "estás", "esté", "estéis", "estén", "estés", "fue", "fuera", "fuerais", "fueran", "fueras", "fueron", "fuese", "fueseis", "fuesen", "fueses", "fui", "fuimos", "fuiste", "fuisteis", "fuéramos", "fuésemos", "ha", "habida", "habidas", "habido", "habidos", "habiendo", "habremos", "habrá", "habrán", "habrás", "habré", "habréis", "habría", "habríais", "habríamos", "habrían", "habrías", "habéis", "había", "habíais", "habíamos", "habían", "habías", "han", "has", "hasta", "hay", "haya", "hayamos", "hayan", "hayas", "hayáis", "he", "hemos", "hube", "hubiera", "hubierais", "hubieran", "hubieras", "hubieron", "hubiese", "hubieseis", "hubiesen", "hubieses", "hubimos", "hubiste", "hubisteis", "hubiéramos", "hubiésemos", "hubo", "la", "las", "le", "les", "lo", "los", "me", "mi", "mis", "mucho", "muchos", "muy", "más", "mí", "mía", "mías", "mío", "míos", "nada", "ni", "no", "nos", "nosotras", "nosotros", "nuestra", "nuestras", "nuestro", "nuestros", "o", "os", "otra", "otras", "otro", "otros", "para", "pero", "poco", "por", "porque", "que", "quien", "quienes", "qué", "se", "sea", "seamos", "sean", "seas", "seremos", "será", "serán", "serás", "seré", "seréis", "sería", "seríais", "seríamos", "serían", "serías", "seáis", "sido", "siendo", "sin", "sobre", "sois", "somos", "son", "soy", "su", "sus", "suya", "suyas", "suyo", "suyos", "sí", "también", "tanto", "te", "tendremos", "tendrá", "tendrán", "tendrás", "tendré", "tendréis", "tendría", "tendríais", "tendríamos", "tendrían", "tendrías", "tened", "tenemos", "tenga", "tengamos", "tengan", "tengas", "tengo", "tengáis", "tenida", "tenidas", "tenido", "tenidos", "teniendo", "tenéis", "tenía", "teníais", "teníamos", "tenían", "tenías", "ti", "tiene", "tienen", "tienes", "todo", "todos", "tu", "tus", "tuve", "tuviera", "tuvierais", "tuvieran", "tuvieras", "tuvieron", "tuviese", "tuvieseis", "tuviesen", "tuvieses", "tuvimos", "tuviste", "tuvisteis", "tuviéramos", "tuviésemos", "tuvo", "tuya", "tuyas", "tuyo", "tuyos", "tú", "un", "una", "uno", "unos", "vosotras", "vosotros", "vuestra", "vuestras", "vuestro", "vuestros", "y", "ya", "yo", "él", "éramos"];
-var stopWordsStemmed = ["a", "al", "algo", "algun", "ante", "antes", "com", "con", "contr", "cual", "cuand", "de", "del", "desd", "dond", "durant", "e", "el", "ella", "ellas", "ellos", "en", "entre", "era", "erais", "eram", "eran", "eras", "eres", "es", "esa", "esas", "ese", "eso", "esos", "esta", "estab", "estabais", "estad", "estais", "estam", "estan", "estand", "estar", "estaran", "estaras", "estas", "este", "esteis", "estem", "esten", "estes", "esto", "estos", "estoy", "estuv", "fue", "fuer", "fuerais", "fueron", "fues", "fueseis", "fui", "fuim", "fuist", "fuisteis", "ha", "hab", "habr", "habran", "habras", "han", "has", "hast", "hay", "he", "hem", "hub", "la", "las", "le", "les", "lo", "los", "mas", "me", "mi", "mia", "mias", "mio", "mios", "mis", "much", "muy", "nad", "ni", "no", "nos", "nosotr", "nuestr", "o", "os", "otra", "otras", "otro", "otros", "par", "per", "poc", "por", "porqu", "que", "qui", "quien", "se", "sea", "seais", "seam", "sean", "seas", "ser", "seran", "seras", "si", "sid", "siend", "sin", "sobr", "sois", "som", "son", "soy", "su", "sus", "suy", "tambien", "tant", "te", "ten", "tendr", "tendran", "tendras", "teng", "ti", "tien", "tod", "tu", "tus", "tuv", "tuy", "un", "una", "uno", "unos", "vosotr", "vuestr", "y", "ya", "yo"];
+let stopWords = ["a", "al", "algo", "algunas", "algunos", "ante", "antes", "como", "con", "contra", "cual", "cuando", "de", "del", "desde", "donde", "durante", "e", "el", "ella", "ellas", "ellos", "en", "entre", "era", "erais", "eran", "eras", "eres", "es", "esa", "esas", "ese", "eso", "esos", "esta", "estaba", "estabais", "estaban", "estabas", "estad", "estada", "estadas", "estado", "estados", "estamos", "estando", "estar", "estaremos", "estará", "estarán", "estarás", "estaré", "estaréis", "estaría", "estaríais", "estaríamos", "estarían", "estarías", "estas", "este", "estemos", "esto", "estos", "estoy", "estuve", "estuviera", "estuvierais", "estuvieran", "estuvieras", "estuvieron", "estuviese", "estuvieseis", "estuviesen", "estuvieses", "estuvimos", "estuviste", "estuvisteis", "estuviéramos", "estuviésemos", "estuvo", "está", "estábamos", "estáis", "están", "estás", "esté", "estéis", "estén", "estés", "fue", "fuera", "fuerais", "fueran", "fueras", "fueron", "fuese", "fueseis", "fuesen", "fueses", "fui", "fuimos", "fuiste", "fuisteis", "fuéramos", "fuésemos", "ha", "habida", "habidas", "habido", "habidos", "habiendo", "habremos", "habrá", "habrán", "habrás", "habré", "habréis", "habría", "habríais", "habríamos", "habrían", "habrías", "habéis", "había", "habíais", "habíamos", "habían", "habías", "han", "has", "hasta", "hay", "haya", "hayamos", "hayan", "hayas", "hayáis", "he", "hemos", "hube", "hubiera", "hubierais", "hubieran", "hubieras", "hubieron", "hubiese", "hubieseis", "hubiesen", "hubieses", "hubimos", "hubiste", "hubisteis", "hubiéramos", "hubiésemos", "hubo", "la", "las", "le", "les", "lo", "los", "me", "mi", "mis", "mucho", "muchos", "muy", "más", "mí", "mía", "mías", "mío", "míos", "nada", "ni", "no", "nos", "nosotras", "nosotros", "nuestra", "nuestras", "nuestro", "nuestros", "o", "os", "otra", "otras", "otro", "otros", "para", "pero", "poco", "por", "porque", "que", "quien", "quienes", "qué", "se", "sea", "seamos", "sean", "seas", "seremos", "será", "serán", "serás", "seré", "seréis", "sería", "seríais", "seríamos", "serían", "serías", "seáis", "sido", "siendo", "sin", "sobre", "sois", "somos", "son", "soy", "su", "sus", "suya", "suyas", "suyo", "suyos", "sí", "también", "tanto", "te", "tendremos", "tendrá", "tendrán", "tendrás", "tendré", "tendréis", "tendría", "tendríais", "tendríamos", "tendrían", "tendrías", "tened", "tenemos", "tenga", "tengamos", "tengan", "tengas", "tengo", "tengáis", "tenida", "tenidas", "tenido", "tenidos", "teniendo", "tenéis", "tenía", "teníais", "teníamos", "tenían", "tenías", "ti", "tiene", "tienen", "tienes", "todo", "todos", "tu", "tus", "tuve", "tuviera", "tuvierais", "tuvieran", "tuvieras", "tuvieron", "tuviese", "tuvieseis", "tuviesen", "tuvieses", "tuvimos", "tuviste", "tuvisteis", "tuviéramos", "tuviésemos", "tuvo", "tuya", "tuyas", "tuyo", "tuyos", "tú", "un", "una", "uno", "unos", "vosotras", "vosotros", "vuestra", "vuestras", "vuestro", "vuestros", "y", "ya", "yo", "él", "éramos"];
+let stopWordsStemmed = ["a", "al", "algo", "algun", "ante", "antes", "com", "con", "contr", "cual", "cuand", "de", "del", "desd", "dond", "durant", "e", "el", "ella", "ellas", "ellos", "en", "entre", "era", "erais", "eram", "eran", "eras", "eres", "es", "esa", "esas", "ese", "eso", "esos", "esta", "estab", "estabais", "estad", "estais", "estam", "estan", "estand", "estar", "estaran", "estaras", "estas", "este", "esteis", "estem", "esten", "estes", "esto", "estos", "estoy", "estuv", "fue", "fuer", "fuerais", "fueron", "fues", "fueseis", "fui", "fuim", "fuist", "fuisteis", "ha", "hab", "habr", "habran", "habras", "han", "has", "hast", "hay", "he", "hem", "hub", "la", "las", "le", "les", "lo", "los", "mas", "me", "mi", "mia", "mias", "mio", "mios", "mis", "much", "muy", "nad", "ni", "no", "nos", "nosotr", "nuestr", "o", "os", "otra", "otras", "otro", "otros", "par", "per", "poc", "por", "porqu", "que", "qui", "quien", "se", "sea", "seais", "seam", "sean", "seas", "ser", "seran", "seras", "si", "sid", "siend", "sin", "sobr", "sois", "som", "son", "soy", "su", "sus", "suy", "tambien", "tant", "te", "ten", "tendr", "tendran", "tendras", "teng", "ti", "tien", "tod", "tu", "tus", "tuv", "tuy", "un", "una", "uno", "unos", "vosotr", "vuestr", "y", "ya", "yo"];
 
 function skipStopWords() {
 	return document.getElementById("inputCheckSkipStopWords").checked;	
