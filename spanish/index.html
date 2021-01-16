@@ -133,8 +133,8 @@ function printTable(inputList, tblId, outputElement, filterStopWordCallBack) {
  				!(filterStopWordCallBack && filterStopWordCallBack(a))   // condition is always true if filterStopWordCallBack is false, when filterStopWordCallBack is true, then depends on filterStopWordCallBack(a) call
  			) {
  			output += "<tr><td>" + i + "</td><td>" + a + "</td><td>" + String(inputList[a]) + "</td></tr>";
+ 			i++;
  		}
- 		i++;
  	}
 
 	output += "</tbody></table>";
